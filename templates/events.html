@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Events – SecureEvent{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Upcoming Events</h1>
+  {% if session.role in ['organizer','admin'] %}
+  <a href="/organizer/events/new"
+     class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg">
+    + New Event
+  </a>
+  {% endif %}
+</div>
+
+{% if events %}
+<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+  {% for ev in events %}
+  {% set full = ev.registered_count >= ev.capacity %}
+  {% set closed = ev.reg_deadline < now %}
+  <div class="bg-white rounded-xl shadow border border-gray-100 p-5 flex flex-col">
+    <div class="flex items-start justify-between mb-3">
+      <h2 class="font-semibold text-gray-900 text-lg leading-tight">{{ ev.title }}</h2>
+      {% if full %}
+        <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Full</span>
+      {% elif closed %}
+        <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">Closed</span>
+      {% else %}
+        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Open</span>
+      {% endif %}
+    </div>
+    {% if ev.description %}
+    <p class="text-sm text-gray-500 mb-3 flex-1">{{ ev.description[:120] }}{% if ev.description|length > 120 %}…{% endif %}</p>
+    {% endif %}
+    <div class="text-xs text-gray-400 space-y-1 mb-4">
+      <div>📅 {{ ev.event_date.strftime('%d %b %Y, %H:%M') }}</div>
+      <div>⏰ Deadline: {{ ev.reg_deadline.strftime('%d %b %Y, %H:%M') }}</div>
+      <div>👤 By {{ ev.organizer_name }}</div>
+      <div>🎟 {{ ev.registered_count }} / {{ ev.capacity }} registered</div>
+    </div>
+    <div class="flex gap-2 mt-auto">
+      {% if session.role == 'student' and not full and not closed %}
+      <form method="POST" action="/events/{{ ev.id }}/register" class="flex-1">
+        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-1.5 rounded-lg">
+          Register
+        </button>
+      </form>
+      {% elif session.role in ['organizer','admin'] %}
+      <a href="/organizer/events/{{ ev.id }}/attendees"
+         class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 rounded-lg">
+        Attendees
+      </a>
+      <a href="/organizer/events/{{ ev.id }}/checkin"
+         class="flex-1 text-center bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium py-1.5 rounded-lg">
+        Check-in
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 text-gray-400">
+  <p class="text-5xl mb-4">🎪</p>
+  <p class="text-lg font-medium">No upcoming events yet.</p>
+  {% if session.role in ['organizer','admin'] %}
+  <a href="/organizer/events/new" class="mt-4 inline-block text-indigo-600 hover:underline text-sm">Create the first one →</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

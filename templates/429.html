@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}429 Rate Limited – SecureEvent{% endblock %}
+{% block content %}
+<div class="min-h-[60vh] flex items-center justify-center text-center">
+  <div>
+    <p class="text-7xl mb-4">⏱️</p>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">429 – Too Many Requests</h1>
+    <p class="text-gray-500 mb-2">You're sending requests too fast.</p>
+    <p class="text-sm text-gray-400 mb-6">This is the rate-limiting defence in action (Flask-Limiter). Your IP has been logged.</p>
+    <a href="/login" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700">Wait and try again</a>
+  </div>
+</div>
+{% endblock %}
